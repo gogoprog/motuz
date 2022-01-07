@@ -2,6 +2,8 @@ package;
 
 import js.Browser.document;
 
+using StringTools;
+
 enum State {
     LOADING;
     TYPING;
@@ -13,7 +15,7 @@ class Motuz {
     var wordLength = 5;
 
     var words:Array<String>;
-    var solution:Int;
+    var solution:String;
     var current:String;
     var rowIndex:Int;
     var rowElement:js.html.Element;
@@ -27,7 +29,7 @@ class Motuz {
     }
 
     private function loadWords(lang:String) {
-        words = [];
+        showPopup("Loading dictionary...");
         var http = new haxe.Http("../deps/words_" + lang + ".txt");
         http.onData = function(data) {
             var received = data.split("\n");
@@ -45,7 +47,23 @@ class Motuz {
     }
 
     private function prepareNewGame() {
-        solution = Std.random(words.length);
+        hidePopup();
+        var r = Std.random(words.length);
+        solution = words[r];
+        solution = solution.toLowerCase();
+        solution = solution.replace("â", "a");
+        solution = solution.replace("ê", "e");
+        solution = solution.replace("î", "i");
+        solution = solution.replace("ô", "o");
+        solution = solution.replace("û", "u");
+        solution = solution.replace("à", "a");
+        solution = solution.replace("è", "e");
+        solution = solution.replace("ì", "i");
+        solution = solution.replace("ò", "o");
+        solution = solution.replace("ù", "u");
+        solution = solution.replace("ë", "e");
+        solution = solution.replace("ï", "i");
+        solution = solution.replace("ü", "u");
         state = TYPING;
         current = "";
         rowIndex = 0;
@@ -101,7 +119,7 @@ class Motuz {
         state = CHECKING;
 
         if(current.length < wordLength) {
-            trace("Not enough letters");
+            showPopup("Not enough letters!", 1000);
             state = TYPING;
             return;
         }
@@ -109,11 +127,10 @@ class Motuz {
         var index = words.indexOf(current);
 
         if(index == -1) {
-            trace("Not a real word");
+            showPopup("Unknown word?", 1000);
             state = TYPING;
             return;
         } else {
-            trace("Ok : " + current);
             checkLetter(0);
         }
     }
@@ -122,12 +139,12 @@ class Motuz {
         var el = getLetterElement(index);
         el.classList.remove("filled");
         var c = current.charAt(index);
-        var d = words[solution].charAt(index);
+        var d = solution.charAt(index);
 
         if(c == d) {
             el.classList.add("correct");
         } else {
-            if(words[solution].indexOf(c) != -1) {
+            if(solution.indexOf(c) != -1) {
                 el.classList.add("nothere");
             } else {
                 el.classList.add("useless");
@@ -135,10 +152,11 @@ class Motuz {
         }
 
         if(index < wordLength - 1) {
-            haxe.Timer.delay(function() {checkLetter(index + 1);}, 5);
+            haxe.Timer.delay(function() {checkLetter(index + 1);}, 200);
         } else {
-            if(current == words[solution]) {
-                trace("winrar!");
+            if(current == solution) {
+                showPopup("Correct!", 2000);
+                haxe.Timer.delay(prepareNewGame, 2000);
             } else {
                 state = TYPING;
                 rowIndex++;
@@ -151,6 +169,20 @@ class Motuz {
                 }
             }
         }
+    }
+
+    private function showPopup(msg:String, ?duration = 0) {
+        var el = document.querySelector(".popup");
+        el.innerText = msg;
+        el.style.opacity = "1";
+
+        if(duration != 0) {
+            haxe.Timer.delay(hidePopup, duration);
+        }
+    }
+
+    private function hidePopup() {
+        document.querySelector(".popup").style.opacity = "0";
     }
 
     static function main() {
