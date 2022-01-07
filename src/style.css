@@ -7,7 +7,7 @@ body {
   left: 50%;
   top: 10px;
   transform: translateX(-50%);
-  font-size: 32px;
+  font-size: 38px;
   font-weight: bold;
   text-align: center;
   width: 300px;
@@ -24,7 +24,6 @@ body {
   z-index: -1;
 }
 
-
 .centerframe {
   position: absolute;
   top: 100px;
@@ -37,14 +36,43 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 350px;
+  width: 100%;
+  margin-bottom: 6px;
 }
 
 .letter {
-  display: block;
-  width: 48px;
-  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
   border: 2px solid #ccc;
-  margin-left: 5px;
-  margin-right: 5px;
+  margin-left: 3px;
+  margin-right: 3px;
+  text-transform: uppercase;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.letter.filled {
+  border: 2px solid #777;
+  color: black;
+}
+
+.letter.useless {
+  border: 2px solid #777;
+  background-color: #777;
+  color: white;
+}
+
+.letter.nothere {
+  border: 2px solid #cb5;
+  background-color: #cb5;
+  color: white;
+}
+
+.letter.correct {
+  border: 2px solid #6a6;
+  background-color: #6a6;
+  color: white;
 }

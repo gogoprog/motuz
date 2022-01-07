@@ -16,11 +16,14 @@ class Motuz {
     var solution:Int;
     var current:String;
     var rowIndex:Int;
+    var rowElement:js.html.Element;
     var state = LOADING;
+    var rowModelElement:js.html.Element;
 
     public function new() {
         loadWords("fr");
         js.Browser.window.addEventListener("keydown", onType);
+        rowModelElement = cast document.querySelector(".row").cloneNode(true);
     }
 
     private function loadWords(lang:String) {
@@ -36,7 +39,6 @@ class Motuz {
                 }
             }
 
-            trace(words);
             prepareNewGame();
         }
         http.request();
@@ -47,6 +49,7 @@ class Motuz {
         state = TYPING;
         current = "";
         rowIndex = 0;
+        rowElement = cast document.querySelectorAll(".row")[rowIndex];
     }
 
     private function onType(e) {
@@ -62,17 +65,91 @@ class Motuz {
                     }
                 }
 
+                if(e.keyCode == 13) {
+                    check();
+                } else if(e.keyCode == 8) {
+                    removeLetter();
+                }
+
             default:
         }
     }
 
-    private function addLetter(letter:String) {
-        current += letter;
-        var row:js.html.Element = cast document.querySelectorAll(".row")[rowIndex];
-        var el:js.html.Element = cast row.querySelectorAll(".letter")[current.length - 1];
-        el.innerText = letter;
+    private function getLetterElement(index:Int):js.html.Element {
+        return cast rowElement.querySelectorAll(".letter")[index];
+    }
 
-        if(current.length == wordLength) {
+    private function addLetter(letter:String) {
+        if(current.length < wordLength) {
+            current += letter;
+            var el = getLetterElement(current.length - 1);
+            el.innerText = letter;
+            el.classList.add("filled");
+        }
+    }
+
+    private function removeLetter() {
+        if(current.length > 0) {
+            var el = getLetterElement(current.length - 1);
+            el.innerText = "";
+            el.classList.remove("filled");
+            current = current.substr(0, current.length - 1);
+        }
+    }
+
+    private function check() {
+        state = CHECKING;
+
+        if(current.length < wordLength) {
+            trace("Not enough letters");
+            state = TYPING;
+            return;
+        }
+
+        var index = words.indexOf(current);
+
+        if(index == -1) {
+            trace("Not a real word");
+            state = TYPING;
+            return;
+        } else {
+            trace("Ok : " + current);
+            checkLetter(0);
+        }
+    }
+
+    private function checkLetter(index:Int) {
+        var el = getLetterElement(index);
+        el.classList.remove("filled");
+        var c = current.charAt(index);
+        var d = words[solution].charAt(index);
+
+        if(c == d) {
+            el.classList.add("correct");
+        } else {
+            if(words[solution].indexOf(c) != -1) {
+                el.classList.add("nothere");
+            } else {
+                el.classList.add("useless");
+            }
+        }
+
+        if(index < wordLength - 1) {
+            haxe.Timer.delay(function() {checkLetter(index + 1);}, 5);
+        } else {
+            if(current == words[solution]) {
+                trace("winrar!");
+            } else {
+                state = TYPING;
+                rowIndex++;
+                rowElement = cast document.querySelectorAll(".row")[rowIndex];
+                current = "";
+
+                if(rowElement == null) {
+                    document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
+                    rowElement = cast document.querySelectorAll(".row")[rowIndex];
+                }
+            }
         }
     }
 
