@@ -21,11 +21,26 @@ class Motuz {
     var rowElement:js.html.Element;
     var state = LOADING;
     var rowModelElement:js.html.Element;
+    var lang:String = "fr";
 
     public function new() {
-        loadWords("fr");
+        var p_lang = getParameter("lang");
+
+        if(p_lang != null) {
+            lang = p_lang;
+        }
+
+        document.querySelector("#current-lang").innerText = lang;
+        loadWords(lang);
         js.Browser.window.addEventListener("keydown", onType);
         rowModelElement = cast document.querySelector(".row").cloneNode(true);
+    }
+
+
+    static private function getParameter(name:String):String {
+        var urlString = js.Browser.window.location.href;
+        var url = new js.html.URL(urlString);
+        return url.searchParams.get(name);
     }
 
     private function loadWords(lang:String) {
@@ -166,6 +181,7 @@ class Motuz {
                 if(rowElement == null) {
                     document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
                     rowElement = cast document.querySelectorAll(".row")[rowIndex];
+                    js.Browser.window.scrollTo(0, document.body.scrollHeight);
                 }
             }
         }
