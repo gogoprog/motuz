@@ -174,7 +174,7 @@ class Game {
         }
 
         if(index < wordLength - 1) {
-            haxe.Timer.delay(function() {checkLetter(index + 1);}, 2);
+            haxe.Timer.delay(function() {checkLetter(index + 1);}, 200);
         } else {
             if(current == solution) {
                 showPopup("Correct!", 2000);

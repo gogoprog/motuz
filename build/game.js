@@ -686,7 +686,7 @@ motuz_Game.prototype = {
 		if(index < this.wordLength - 1) {
 			haxe_Timer.delay(function() {
 				_gthis.checkLetter(index + 1);
-			},2);
+			},200);
 		} else if(this.current == this.solution) {
 			this.showPopup("Correct!",2000);
 			haxe_Timer.delay($bind(this,this.prepareNewGame),2000);
