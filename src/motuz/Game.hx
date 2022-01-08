@@ -121,12 +121,18 @@ class Game {
         }
     }
 
+    private function bounceRow() {
+        rowElement.classList.remove("bounce");
+        haxe.Timer.delay(function() {rowElement.classList.add("bounce");}, 1);
+    }
+
     private function check() {
         state = CHECKING;
 
         if(current.length < wordLength) {
             showPopup("Not enough letters!", 1000);
             state = TYPING;
+            bounceRow();
             return;
         }
 
@@ -135,6 +141,7 @@ class Game {
         if(index == -1) {
             showPopup("Unknown word?", 1000);
             state = TYPING;
+            bounceRow();
             return;
         } else {
             checkLetter(0);

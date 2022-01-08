@@ -103,3 +103,27 @@ body {
   color: white;
   transition: opacity 0.2s;
 }
+
+.fork {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(6px);
+  }
+
+  100% {
+    transform: translateX(-6px);
+  }
+}
+
+.bounce {
+  animation: bounce 0.15s 3 alternate;
+}
