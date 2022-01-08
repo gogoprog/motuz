@@ -23,6 +23,7 @@ class Tools {
         word = word.replace("ï", "i");
         word = word.replace("ü", "u");
         word = word.replace("ñ", "n");
+        word = word.replace("ç", "c");
         return word;
     }
 
