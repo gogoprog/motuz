@@ -32,6 +32,10 @@ class Game {
         loadWords(lang);
         js.Browser.window.addEventListener("keydown", onType);
         rowModelElement = cast document.querySelector(".row").cloneNode(true);
+
+        for(i in 0...5) {
+            document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
+        }
     }
 
 

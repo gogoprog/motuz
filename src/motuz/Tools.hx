@@ -11,14 +11,18 @@ class Tools {
         word = word.replace("ô", "o");
         word = word.replace("û", "u");
         word = word.replace("à", "a");
+        word = word.replace("á", "a");
         word = word.replace("è", "e");
         word = word.replace("é", "e");
         word = word.replace("ì", "i");
+        word = word.replace("í", "i");
         word = word.replace("ò", "o");
         word = word.replace("ù", "u");
+        word = word.replace("ú", "u");
         word = word.replace("ë", "e");
         word = word.replace("ï", "i");
         word = word.replace("ü", "u");
+        word = word.replace("ñ", "n");
         return word;
     }
 

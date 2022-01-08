@@ -555,6 +555,11 @@ var motuz_Game = function() {
 	this.loadWords(this.lang);
 	window.addEventListener("keydown",$bind(this,this.onType));
 	this.rowModelElement = window.document.querySelector(".row").cloneNode(true);
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 };
 motuz_Game.__name__ = true;
 motuz_Game.getParameter = function(name) {
