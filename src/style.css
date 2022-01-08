@@ -36,7 +36,7 @@ body {
 
 .centerframe {
   position: absolute;
-  top: 160px;
+  top: 200px;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -62,6 +62,7 @@ body {
   text-transform: uppercase;
   font-size: 32px;
   font-weight: bold;
+  transition: all 0.5s;
 }
 
 .letter.filled {
@@ -90,7 +91,7 @@ body {
 .popup {
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 120px;
   transform: translate(-50%, -50%);
   width: 300px;
   height: 100px;

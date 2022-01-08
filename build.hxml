@@ -1,3 +1,9 @@
 -cp src
--js build/motuz.js
--main Motuz
+-js build/game.js
+-main motuz.Game
+
+--next
+
+-cp src
+-hl build/tools.hl
+-main motuz.Tools

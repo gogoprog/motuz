@@ -1,8 +1,6 @@
-package;
+package motuz;
 
 import js.Browser.document;
-
-using StringTools;
 
 enum State {
     LOADING;
@@ -11,7 +9,7 @@ enum State {
     FINISHING;
 }
 
-class Motuz {
+class Game {
     var wordLength = 5;
 
     var words:Array<String>;
@@ -45,40 +43,33 @@ class Motuz {
 
     private function loadWords(lang:String) {
         showPopup("Loading dictionary...");
-        var http = new haxe.Http("../deps/words_" + lang + ".txt");
+        var http = new haxe.Http("../deps/words_" + lang + ".txt." + wordLength);
         http.onData = function(data) {
             var received = data.split("\n");
-            words = [];
-
-            for(word in received) {
-                if(word.length == wordLength) {
-                    words.push(word);
-                }
-            }
-
+            words = received;
             prepareNewGame();
         }
         http.request();
     }
 
+    private function clearRows() {
+        var letters = document.querySelectorAll(".letter");
+
+        for(item in letters) {
+            var el:js.html.Element = cast item;
+            el.classList.remove("correct");
+            el.classList.remove("useless");
+            el.classList.remove("nothere");
+            el.classList.remove("filled");
+            el.innerText = "";
+        }
+    }
+
     private function prepareNewGame() {
-        hidePopup();
+        showPopup("New game [" + lang + "]", 1000);
+        clearRows();
         var r = Std.random(words.length);
         solution = words[r];
-        solution = solution.toLowerCase();
-        solution = solution.replace("â", "a");
-        solution = solution.replace("ê", "e");
-        solution = solution.replace("î", "i");
-        solution = solution.replace("ô", "o");
-        solution = solution.replace("û", "u");
-        solution = solution.replace("à", "a");
-        solution = solution.replace("è", "e");
-        solution = solution.replace("ì", "i");
-        solution = solution.replace("ò", "o");
-        solution = solution.replace("ù", "u");
-        solution = solution.replace("ë", "e");
-        solution = solution.replace("ï", "i");
-        solution = solution.replace("ü", "u");
         state = TYPING;
         current = "";
         rowIndex = 0;
@@ -202,6 +193,6 @@ class Motuz {
     }
 
     static function main() {
-        new Motuz();
+        new Game();
     }
 }
