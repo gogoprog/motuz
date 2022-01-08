@@ -2,7 +2,7 @@
 
 ## What is it?
 
-A copy of a game but with infinite plays and other languages support!
+A Wordle clone but with infinite plays and other languages support!
 
 ## Play
 
