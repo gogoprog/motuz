@@ -595,6 +595,10 @@ motuz_Game.prototype = {
 			el.classList.remove("filled");
 			el.innerText = "";
 		}
+		while(window.document.querySelectorAll(".row").length > 6) {
+			var frame = window.document.querySelector(".centerframe");
+			frame.removeChild(frame.lastChild);
+		}
 	}
 	,prepareNewGame: function() {
 		this.showPopup("New game [" + this.lang + "]",1000);
@@ -682,7 +686,7 @@ motuz_Game.prototype = {
 		if(index < this.wordLength - 1) {
 			haxe_Timer.delay(function() {
 				_gthis.checkLetter(index + 1);
-			},200);
+			},2);
 		} else if(this.current == this.solution) {
 			this.showPopup("Correct!",2000);
 			haxe_Timer.delay($bind(this,this.prepareNewGame),2000);

@@ -67,6 +67,11 @@ class Game {
             el.classList.remove("filled");
             el.innerText = "";
         }
+
+        while(document.querySelectorAll(".row").length > 6) {
+            var frame = document.querySelector(".centerframe");
+            frame.removeChild(frame.lastChild);
+        }
     }
 
     private function prepareNewGame() {
@@ -169,7 +174,7 @@ class Game {
         }
 
         if(index < wordLength - 1) {
-            haxe.Timer.delay(function() {checkLetter(index + 1);}, 200);
+            haxe.Timer.delay(function() {checkLetter(index + 1);}, 2);
         } else {
             if(current == solution) {
                 showPopup("Correct!", 2000);
