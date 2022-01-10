@@ -19,6 +19,7 @@ EReg.prototype = {
 		this.r.s = s;
 		return this.r.m != null;
 	}
+	,__class__: EReg
 };
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
@@ -84,6 +85,26 @@ Std.__name__ = true;
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
 };
+Std.parseInt = function(x) {
+	if(x != null) {
+		var _g = 0;
+		var _g1 = x.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var c = x.charCodeAt(i);
+			if(c <= 8 || c >= 14 && c != 32 && c != 45) {
+				var nc = x.charCodeAt(i + 1);
+				var v = parseInt(x,nc == 120 || nc == 88 ? 16 : 10);
+				if(isNaN(v)) {
+					return null;
+				} else {
+					return v;
+				}
+			}
+		}
+	}
+	return null;
+};
 Std.random = function(x) {
 	if(x <= 0) {
 		return 0;
@@ -125,6 +146,7 @@ haxe_Exception.prototype = $extend(Error.prototype,{
 	,get_native: function() {
 		return this.__nativeException;
 	}
+	,__class__: haxe_Exception
 });
 var haxe_Timer = function(time_ms) {
 	var me = this;
@@ -151,6 +173,7 @@ haxe_Timer.prototype = {
 	}
 	,run: function() {
 	}
+	,__class__: haxe_Timer
 };
 var haxe_ValueException = function(value,previous,native) {
 	haxe_Exception.call(this,String(value),previous,native);
@@ -162,6 +185,7 @@ haxe_ValueException.prototype = $extend(haxe_Exception.prototype,{
 	unwrap: function() {
 		return this.value;
 	}
+	,__class__: haxe_ValueException
 });
 var haxe_http_HttpBase = function(url) {
 	this.url = url;
@@ -196,6 +220,7 @@ haxe_http_HttpBase.prototype = {
 		}
 		return this.responseAsString;
 	}
+	,__class__: haxe_http_HttpBase
 };
 var haxe_http_HttpJs = function(url) {
 	this.async = true;
@@ -336,6 +361,7 @@ haxe_http_HttpJs.prototype = $extend(haxe_http_HttpBase.prototype,{
 			onreadystatechange(null);
 		}
 	}
+	,__class__: haxe_http_HttpJs
 });
 var haxe_io_Bytes = function(data) {
 	this.length = data.byteLength;
@@ -398,6 +424,7 @@ haxe_io_Bytes.prototype = {
 		}
 		return s;
 	}
+	,__class__: haxe_io_Bytes
 };
 var haxe_io_Encoding = $hxEnums["haxe.io.Encoding"] = { __ename__:true,__constructs__:null
 	,UTF8: {_hx_name:"UTF8",_hx_index:0,__enum__:"haxe.io.Encoding",toString:$estr}
@@ -423,9 +450,27 @@ haxe_iterators_ArrayIterator.prototype = {
 	,next: function() {
 		return this.array[this.current++];
 	}
+	,__class__: haxe_iterators_ArrayIterator
 };
 var js_Boot = function() { };
 js_Boot.__name__ = true;
+js_Boot.getClass = function(o) {
+	if(o == null) {
+		return null;
+	} else if(((o) instanceof Array)) {
+		return Array;
+	} else {
+		var cl = o.__class__;
+		if(cl != null) {
+			return cl;
+		}
+		var name = js_Boot.__nativeClassName(o);
+		if(name != null) {
+			return js_Boot.__resolveNativeClass(name);
+		}
+		return null;
+	}
+};
 js_Boot.__string_rec = function(o,s) {
 	if(o == null) {
 		return "null";
@@ -518,6 +563,103 @@ js_Boot.__string_rec = function(o,s) {
 		return String(o);
 	}
 };
+js_Boot.__interfLoop = function(cc,cl) {
+	if(cc == null) {
+		return false;
+	}
+	if(cc == cl) {
+		return true;
+	}
+	var intf = cc.__interfaces__;
+	if(intf != null) {
+		var _g = 0;
+		var _g1 = intf.length;
+		while(_g < _g1) {
+			var i = _g++;
+			var i1 = intf[i];
+			if(i1 == cl || js_Boot.__interfLoop(i1,cl)) {
+				return true;
+			}
+		}
+	}
+	return js_Boot.__interfLoop(cc.__super__,cl);
+};
+js_Boot.__instanceof = function(o,cl) {
+	if(cl == null) {
+		return false;
+	}
+	switch(cl) {
+	case Array:
+		return ((o) instanceof Array);
+	case Bool:
+		return typeof(o) == "boolean";
+	case Dynamic:
+		return o != null;
+	case Float:
+		return typeof(o) == "number";
+	case Int:
+		if(typeof(o) == "number") {
+			return ((o | 0) === o);
+		} else {
+			return false;
+		}
+		break;
+	case String:
+		return typeof(o) == "string";
+	default:
+		if(o != null) {
+			if(typeof(cl) == "function") {
+				if(js_Boot.__downcastCheck(o,cl)) {
+					return true;
+				}
+			} else if(typeof(cl) == "object" && js_Boot.__isNativeObj(cl)) {
+				if(((o) instanceof cl)) {
+					return true;
+				}
+			}
+		} else {
+			return false;
+		}
+		if(cl == Class ? o.__name__ != null : false) {
+			return true;
+		}
+		if(cl == Enum ? o.__ename__ != null : false) {
+			return true;
+		}
+		return o.__enum__ != null ? $hxEnums[o.__enum__] == cl : false;
+	}
+};
+js_Boot.__downcastCheck = function(o,cl) {
+	if(!((o) instanceof cl)) {
+		if(cl.__isInterface__) {
+			return js_Boot.__interfLoop(js_Boot.getClass(o),cl);
+		} else {
+			return false;
+		}
+	} else {
+		return true;
+	}
+};
+js_Boot.__cast = function(o,t) {
+	if(o == null || js_Boot.__instanceof(o,t)) {
+		return o;
+	} else {
+		throw haxe_Exception.thrown("Cannot cast " + Std.string(o) + " to " + Std.string(t));
+	}
+};
+js_Boot.__nativeClassName = function(o) {
+	var name = js_Boot.__toStr.call(o).slice(8,-1);
+	if(name == "Object" || name == "Function" || name == "Math" || name == "JSON") {
+		return null;
+	}
+	return name;
+};
+js_Boot.__isNativeObj = function(o) {
+	return js_Boot.__nativeClassName(o) != null;
+};
+js_Boot.__resolveNativeClass = function(name) {
+	return $global[name];
+};
 var js_Browser = function() { };
 js_Browser.__name__ = true;
 js_Browser.get_supported = function() {
@@ -547,14 +689,37 @@ var motuz_Game = function() {
 	this.lang = "fr";
 	this.state = motuz_State.LOADING;
 	this.wordLength = 5;
+	var _gthis = this;
 	var p_lang = motuz_Game.getParameter("lang");
 	if(p_lang != null) {
 		this.lang = p_lang;
 	}
+	var p_length = motuz_Game.getParameter("length");
+	if(p_length != null) {
+		this.wordLength = Std.parseInt(p_length);
+	}
 	window.document.querySelector("#current-lang").innerText = this.lang;
+	var selectElement = js_Boot.__cast(window.document.querySelector("#letters") , HTMLSelectElement);
+	selectElement.value = Std.string(this.wordLength);
+	selectElement.addEventListener("change",function(e) {
+		if(Std.parseInt(selectElement.value) != _gthis.wordLength) {
+			var tmp = window.document.location.origin + window.document.location.pathname + "?lang=" + _gthis.lang + "&length=";
+			window.document.location.href = tmp + selectElement.value;
+		}
+	});
 	this.loadWords(this.lang);
 	window.addEventListener("keydown",$bind(this,this.onType));
-	this.rowModelElement = window.document.querySelector(".row").cloneNode(true);
+	this.letterModelElement = window.document.querySelector(".letter").cloneNode(true);
+	this.rowModelElement = window.document.querySelector(".row");
+	this.rowModelElement.parentNode.removeChild(this.rowModelElement);
+	var _g = 0;
+	var _g1 = this.wordLength - 1;
+	while(_g < _g1) {
+		var i = _g++;
+		var node = this.letterModelElement.cloneNode(true);
+		this.rowModelElement.append(node);
+	}
+	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
@@ -716,6 +881,7 @@ motuz_Game.prototype = {
 	,hidePopup: function() {
 		window.document.querySelector(".popup").style.opacity = "0";
 	}
+	,__class__: motuz_Game
 };
 function $getIterator(o) { if( o instanceof Array ) return new haxe_iterators_ArrayIterator(o); else return o.iterator(); }
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $global.$haxeUID++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = m.bind(o); o.hx__closures__[m.__id__] = f; } return f; }
@@ -724,8 +890,15 @@ if(typeof(performance) != "undefined" ? typeof(performance.now) == "function" : 
 	HxOverrides.now = performance.now.bind(performance);
 }
 if( String.fromCodePoint == null ) String.fromCodePoint = function(c) { return c < 0x10000 ? String.fromCharCode(c) : String.fromCharCode((c>>10)+0xD7C0)+String.fromCharCode((c&0x3FF)+0xDC00); }
+String.prototype.__class__ = String;
 String.__name__ = true;
 Array.__name__ = true;
+var Int = { };
+var Dynamic = { };
+var Float = Number;
+var Bool = Boolean;
+var Class = { };
+var Enum = { };
 js_Boot.__toStr = ({ }).toString;
 motuz_Game.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

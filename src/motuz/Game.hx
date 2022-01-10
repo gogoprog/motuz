@@ -19,6 +19,7 @@ class Game {
     var rowElement:js.html.Element;
     var state = LOADING;
     var rowModelElement:js.html.Element;
+    var letterModelElement:js.html.Element;
     var lang:String = "fr";
 
     public function new() {
@@ -28,12 +29,32 @@ class Game {
             lang = p_lang;
         }
 
+        var p_length = getParameter("length");
+
+        if(p_length != null) {
+            wordLength = Std.parseInt(p_length);
+        }
+
         document.querySelector("#current-lang").innerText = lang;
+        var selectElement = cast(document.querySelector("#letters"), js.html.SelectElement);
+        selectElement.value = Std.string(wordLength);
+        selectElement.addEventListener("change", function(e) {
+            if(Std.parseInt(selectElement.value) != wordLength) {
+                document.location.href = document.location.origin + document.location.pathname + "?lang=" + lang + "&length=" + selectElement.value;
+            }
+        });
         loadWords(lang);
         js.Browser.window.addEventListener("keydown", onType);
-        rowModelElement = cast document.querySelector(".row").cloneNode(true);
+        letterModelElement = cast document.querySelector(".letter").cloneNode(true);
+        rowModelElement = cast document.querySelector(".row");
+        rowModelElement.parentNode.removeChild(rowModelElement);
 
-        for(i in 0...5) {
+        for(i in 0...wordLength-1) {
+            var node = letterModelElement.cloneNode(true);
+            rowModelElement.append(node);
+        }
+
+        for(i in 0...6) {
             document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
         }
     }

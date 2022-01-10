@@ -13,6 +13,13 @@ body {
   width: 512px;
 }
 
+.title .left {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  font-size: 12px;
+}
+
 .title .flags {
   position: absolute;
   right: 0;
