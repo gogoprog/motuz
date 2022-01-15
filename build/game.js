@@ -686,6 +686,8 @@ var motuz_State = $hxEnums["motuz.State"] = { __ename__:true,__constructs__:null
 };
 motuz_State.__constructs__ = [motuz_State.LOADING,motuz_State.TYPING,motuz_State.CHECKING,motuz_State.FINISHING];
 var motuz_Game = function() {
+	this.lastChar = "";
+	this.lastTimeStamp = 0;
 	this.lang = "fr";
 	this.state = motuz_State.LOADING;
 	this.wordLength = 5;
@@ -725,6 +727,8 @@ var motuz_Game = function() {
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 	window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
+	this.inputElement = window.document.querySelector("#input");
+	this.inputElement.addEventListener("input",$bind(this,this.onInput));
 };
 motuz_Game.__name__ = true;
 motuz_Game.getParameter = function(name) {
@@ -771,23 +775,54 @@ motuz_Game.prototype = {
 		var r = Std.random(this.words.length);
 		this.solution = this.words[r];
 		this.state = motuz_State.TYPING;
-		this.current = "";
 		this.rowIndex = 0;
+		this.onNewRow();
+		this.setupInput();
+	}
+	,onNewRow: function() {
+		this.current = "";
 		this.rowElement = window.document.querySelectorAll(".row")[this.rowIndex];
+		this.state = motuz_State.TYPING;
+	}
+	,setupInput: function() {
+		var letterElement = this.getLetterElement(this.current.length);
+		if(letterElement != null) {
+			var rect = letterElement.getBoundingClientRect();
+			this.inputElement.style.top = rect.top + "px";
+			this.inputElement.style.left = rect.left + "px";
+			this.inputElement.style.width = rect.width + "px";
+			this.inputElement.style.height = rect.height + "px";
+		}
 	}
 	,onType: function(e) {
 		if(this.state._hx_index == 1) {
 			var key = e.key;
 			if(key.length == 1) {
-				var code = HxOverrides.cca(key,0);
-				if(code >= 97 && code <= 122) {
-					this.addLetter(key);
+				if(window.document.activeElement != this.inputElement) {
+					var code = HxOverrides.cca(key,0);
+					if(code >= 97 && code <= 122) {
+						this.addLetter(key);
+					}
 				}
 			}
 			if(e.keyCode == 13) {
 				this.check();
 			} else if(e.keyCode == 8) {
 				this.removeLetter();
+			}
+		}
+	}
+	,onInput: function(e) {
+		if(e.data != null && e.data != "") {
+			var c = e.data.charAt(e.data.length - 1);
+			if(c.length == 1) {
+				c = c.toLowerCase();
+				if(this.lastChar != c || e.timeStamp - this.lastTimeStamp > 150) {
+					this.addLetter(c);
+					this.lastChar = c;
+					this.lastTimeStamp = e.timeStamp;
+				}
+				this.inputElement.value = "";
 			}
 		}
 	}
@@ -800,6 +835,7 @@ motuz_Game.prototype = {
 			var el = this.getLetterElement(this.current.length - 1);
 			el.innerText = letter;
 			el.classList.add("filled");
+			this.setupInput();
 		}
 	}
 	,removeLetter: function() {
@@ -808,6 +844,7 @@ motuz_Game.prototype = {
 			el.innerText = "";
 			el.classList.remove("filled");
 			this.current = HxOverrides.substr(this.current,0,this.current.length - 1);
+			this.setupInput();
 		}
 	}
 	,bounceRow: function() {
@@ -856,15 +893,14 @@ motuz_Game.prototype = {
 			this.showPopup("Correct!",2000);
 			haxe_Timer.delay($bind(this,this.prepareNewGame),2000);
 		} else {
-			this.state = motuz_State.TYPING;
 			this.rowIndex++;
-			this.rowElement = window.document.querySelectorAll(".row")[this.rowIndex];
-			this.current = "";
+			this.onNewRow();
 			if(this.rowElement == null) {
 				window.document.querySelector(".centerframe").append(this.rowModelElement.cloneNode(true));
 				this.rowElement = window.document.querySelectorAll(".row")[this.rowIndex];
 				window.scrollTo(0,window.document.body.scrollHeight);
 			}
+			this.setupInput();
 		}
 	}
 	,showPopup: function(msg,duration) {

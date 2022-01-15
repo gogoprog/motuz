@@ -21,6 +21,7 @@ class Game {
     var rowModelElement:js.html.Element;
     var letterModelElement:js.html.Element;
     var lang:String = "fr";
+    var inputElement:js.html.InputElement;
 
     public function new() {
         var p_lang = getParameter("lang");
@@ -57,6 +58,9 @@ class Game {
         for(i in 0...6) {
             document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
         }
+
+        inputElement = cast document.querySelector("#input");
+        inputElement.addEventListener("input", onInput);
     }
 
 
@@ -101,9 +105,27 @@ class Game {
         var r = Std.random(words.length);
         solution = words[r];
         state = TYPING;
-        current = "";
         rowIndex = 0;
+        onNewRow();
+        setupInput();
+    }
+
+    private function onNewRow() {
+        current = "";
         rowElement = cast document.querySelectorAll(".row")[rowIndex];
+        state = TYPING;
+    }
+
+    private function setupInput() {
+        var letterElement= getLetterElement(current.length);
+
+        if(letterElement != null) {
+            var rect = letterElement.getBoundingClientRect();
+            inputElement.style.top = rect.top + "px";
+            inputElement.style.left = rect.left + "px";
+            inputElement.style.width = rect.width + "px";
+            inputElement.style.height = rect.height + "px";
+        }
     }
 
     private function onType(e) {
@@ -112,10 +134,12 @@ class Game {
                 var key:String = e.key;
 
                 if(key.length == 1) {
-                    var code = key.charCodeAt(0);
+                    if(document.activeElement != inputElement) {
+                        var code = key.charCodeAt(0);
 
-                    if(code >= 97 && code <= 122) {
-                        addLetter(key);
+                        if(code >= 97 && code <= 122) {
+                            addLetter(key);
+                        }
                     }
                 }
 
@@ -129,6 +153,29 @@ class Game {
         }
     }
 
+
+
+    private var lastTimeStamp = 0;
+    private var lastChar = "";
+
+    private function onInput(e) {
+        if(e.data != null && e.data != "") {
+            var c = e.data.charAt(e.data.length - 1);
+
+            if(c.length == 1) {
+                c = c.toLowerCase();
+
+                if(lastChar != c || e.timeStamp - lastTimeStamp > 150) { // :NOTE: Required for Firefox Mobile, clear the input resends the event.
+                    addLetter(c);
+                    lastChar = c;
+                    lastTimeStamp = e.timeStamp;
+                }
+
+                inputElement.value = "";
+            }
+        }
+    }
+
     private function getLetterElement(index:Int):js.html.Element {
         return cast rowElement.querySelectorAll(".letter")[index];
     }
@@ -139,6 +186,7 @@ class Game {
             var el = getLetterElement(current.length - 1);
             el.innerText = letter;
             el.classList.add("filled");
+            setupInput();
         }
     }
 
@@ -148,6 +196,7 @@ class Game {
             el.innerText = "";
             el.classList.remove("filled");
             current = current.substr(0, current.length - 1);
+            setupInput();
         }
     }
 
@@ -201,16 +250,16 @@ class Game {
                 showPopup("Correct!", 2000);
                 haxe.Timer.delay(prepareNewGame, 2000);
             } else {
-                state = TYPING;
                 rowIndex++;
-                rowElement = cast document.querySelectorAll(".row")[rowIndex];
-                current = "";
+                onNewRow();
 
                 if(rowElement == null) {
                     document.querySelector(".centerframe").append(rowModelElement.cloneNode(true));
                     rowElement = cast document.querySelectorAll(".row")[rowIndex];
                     js.Browser.window.scrollTo(0, document.body.scrollHeight);
                 }
+
+                setupInput();
             }
         }
     }

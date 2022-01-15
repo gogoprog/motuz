@@ -137,3 +137,9 @@ body {
 .bounce {
   animation: bounce 0.15s 3 alternate;
 }
+
+#input {
+  position: absolute;
+  text-align: center;
+  opacity: 0;
+}
